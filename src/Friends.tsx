@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  TextInput,
 } from 'react-native';
 import {collection, getDocs, onSnapshot} from 'firebase/firestore';
 import {db} from './config/firebase'; // Ensure Firebase is properly configured
@@ -90,21 +91,36 @@ export function Friends({user, onLogout}: any) {
       <TouchableOpacity
         style={[
           styles.userCard,
-          {backgroundColor: unseen ? '#66ccff' : 'white'},
+          {backgroundColor: unseen ? '#D45588' : 'transparent'},
         ]}
         onPress={() => setFriend(item)}>
-        <View style={[styles.avatarContainer]}>
+        <View
+          style={[
+            styles.avatarContainer,
+            {
+              borderColor: unseen ? 'white' : '#D45588',
+              backgroundColor: unseen ? 'white' : '#D45588',
+            },
+          ]}>
           {avatarUrl ? (
             // Display the avatar image if available
             <Image source={{uri: avatarUrl}} style={styles.avatarImage} />
           ) : (
             // Display initials if no avatar is available
-            <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
+            <Text
+              style={[
+                styles.avatarText,
+                {color: unseen ? '#D45588' : 'white'},
+              ]}>
+              {getInitials(item.name)}
+            </Text>
           )}
         </View>
         <View style={styles.userInfo}>
-          <Text style={styles.name}>{item.name || 'Anonymous'}</Text>
-          <Text style={[styles.email, {color: unseen ? 'black' : 'gray'}]}>
+          <Text style={[styles.name, {color: unseen ? 'white' : '#D45588'}]}>
+            {item.name || 'Anonymous'}
+          </Text>
+          <Text style={[styles.email, {color: unseen ? 'white' : '#D45588'}]}>
             {istyping ? 'Typing...' : c?.lastMessage}
           </Text>
         </View>
@@ -115,25 +131,55 @@ export function Friends({user, onLogout}: any) {
   if (friend && users?.length) {
     return (
       <>
-        <View>
-          <TouchableOpacity onPress={() => setFriend(null)}>
-            <Text style={[styles.backButtonText]}>← Back</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.header}>
-          <View style={[styles.avatarContainer, styles.chatHeader]}>
-            {friend?.avatar ? (
-              // Display the avatar image if available
-              <Image
-                source={{uri: friend?.avatar}}
-                style={styles.avatarImage}
-              />
-            ) : (
-              // Display initials if no avatar is available
-              <Text style={styles.avatarText}>{getInitials(friend?.name)}</Text>
-            )}
+        <View style={{alignItems: 'center', display: 'flex', backgroundColor:"#FFEBF2"}}>
+          {/* Back Button */}
+          <View>
+            <TouchableOpacity onPress={() => setFriend(null)}>
+              <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Avatar Section */}
+          <View
+            style={{
+              height: 70,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={[
+                styles.chatHeader,
+                {
+                  backgroundColor: '#D45588',
+                  width: 70,
+                  height: 70,
+                  borderRadius: 35,
+                  borderWidth: 1,
+                  borderColor: '#D45588',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                },
+              ]}>
+              {friend?.avatar ? (
+                // Display the avatar image if available
+                <Image
+                  source={{uri: friend?.avatar}}
+                  style={{
+                    width: 70,
+                    height: 70,
+                    borderRadius: 35,
+                  }}
+                />
+              ) : (
+                // Display initials if no avatar is available
+                <Text style={styles.avatarText}>
+                  {getInitials(friend?.name)}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
+
         <Chat friend={friend} user={curentUser} />
       </>
     );
@@ -141,41 +187,66 @@ export function Friends({user, onLogout}: any) {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <View style={[styles.avatarContainer]}>
-          {(user as any)?.avatar ? (
-            <>
+        <Image
+          source={require('./assets/images/home.png')}
+          style={styles.logo}
+        />
+        <View style={styles.headerContainer}>
+          <View style={styles.flexContainer}>
+            <View style={[styles.avatarContainer, {borderColor: '#D45588'}]}>
+              {(user as any)?.avatar ? (
+                <>
+                  <Image
+                    source={{uri: (user as any)?.avatar}}
+                    style={styles.avatarImageHeader}
+                  />
+                </>
+              ) : (
+                // Display the avatar image if available
+                // Display initials if no avatar is available
+                <Text style={[styles.avatarText]}>
+                  {getInitials((user as any).email)}
+                </Text>
+              )}
+            </View>
+
+            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.flexContainer}>
+            <View style={styles.textContainer}>
+              <Text style={styles.headerUser}>Hey, Alif</Text>
+              <Text style={styles.headerDescription}>Let’s chat and catch</Text>
+              <Text style={styles.headerDescription}>up with friends.</Text>
+            </View>
+            <View style={styles.logoContainer}>
               <Image
-                source={{uri: (user as any)?.avatar}}
-                style={styles.avatarImageHeader}
+                style={styles.logo2}
+                source={require('./assets/images/logo2.png')}
               />
-            </>
-          ) : (
-            // Display the avatar image if available
-            // Display initials if no avatar is available
-            <Text style={styles.avatarText}>
-              {getInitials((user as any).email)}
-            </Text>
-          )}
+            </View>
+          </View>
+        </View>
+      </View>
+      <View style={styles.tabchat}>
+        <View style={styles.tabs}>
+          <Text style={[styles.tab, styles.activeTab]}>Chats</Text>
+          <Text style={styles.tab}>Friends</Text>
+          <Text style={styles.tab}>Calls</Text>
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
+        {/* Friends List */}
+        <FlatList
+          data={users}
+          keyExtractor={(item: any) => item.id}
+          renderItem={renderUser}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
-      {/* Header */}
-      <View style={styles.headerFriend}>
-        <Text style={styles.headerText}>Friends</Text>
-      </View>
-
-      {/* Friends List */}
-      <FlatList
-        data={users}
-        keyExtractor={(item: any) => item.id}
-        renderItem={renderUser}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
     </View>
   );
 }
@@ -185,21 +256,182 @@ export function Friends({user, onLogout}: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    height: '100%',
+    backgroundColor: '#FB9EC6',
   },
   header: {
-    flexDirection: 'row', // Align items horizontally
-    justifyContent: 'space-between', // Space between title and logout
+    flexDirection: 'column',
     alignItems: 'center',
-    padding: 5,
+    height: '30%',
+    position: 'relative', // Menambahkan position relative agar zIndex berfungsi
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute', // Membuat logo berada di belakang ikon
+    zIndex: 1, // Memberikan zIndex lebih rendah agar berada di bawah ikon
+  },
+  headerContainer: {
+    position: 'relative',
+    zIndex: 2,
+    padding: 20,
+    flex: 1,
+  },
+  flexContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  headerUser: {
+    color: '#D45588',
+    fontSize: 30,
+    marginBottom: 4,
+    fontWeight: '700',
+  },
+  headerDescription: {
+    color: '#D45588',
+    fontSize: 18,
+    fontWeight: '400',
+  },
+  logo2: {
+    width: 120, // Ukuran logo kedua
+    height: 120, // Ukuran logo kedua
+    borderRadius: 35, // Membuat logo berbentuk lingkaran
+    resizeMode: 'contain', // Agar logo tetap terjaga proporsinya
+  },
+  textContainer: {
+    width: '50%',
+  },
+  logoContainer: {
+    width: '50%',
+    alignItems: 'flex-end',
+  },
+  avatarContainer: {
+    flexDirection: 'row', // Menyusun elemen dalam baris
+    justifyContent: 'center', // Menyusun elemen dimulai dari kiri
+    alignItems: 'center', // Menjaga elemen tetap rata tengah secara vertikal
+    overflow: 'hidden', // Menghindari elemen yang meluap
+    borderWidth: 1,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+    backgroundColor: '#D45588',
+  },
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  searchContainer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#D45588',
+    borderRadius: 20,
+    width: '100%',
+    backgroundColor: '#fff',
+  },
+  icon: {
+    marginRight: 5,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+    color: '#D45588',
+  },
+  tabchat: {
+    backgroundColor: '#FFEBF2',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    height: '70%',
+    padding: 10,
+  },
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+  },
+  tab: {
+    fontSize: 16,
+    color: '#E874A1',
+  },
+  activeTab: {
+    color: '#D45588',
+    fontWeight: 'bold',
+    borderBottomWidth: 2,
+    borderBottomColor: '#D45588',
+    paddingBottom: 5,
+  },
+  itemContainer: {
+    marginBottom: 10,
+    marginTop: 10,
+    marginRight: 20,
+    marginLeft: 20,
+    flexDirection: 'row',
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#D45588',
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  message: {
+    fontSize: 14,
+    color: '#E66D96',
+  },
+  infoContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  time: {
+    fontSize: 12,
+    color: '#9CA3AF',
+  },
+  badge: {
+    backgroundColor: '#D45588',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 5,
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 30,
+    paddingTop: 30,
+    borderWidth: 1,
+    backgroundColor: '#FFEBF2',
+    borderColor: '#D45588',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   logoutButton: {
-    backgroundColor: '#66b3ff', // Purple button
+    backgroundColor: '#D45588', // Purple button
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoutButtonText: {
     color: '#fff',
@@ -219,7 +451,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#87CEEB',
   },
   backButtonText: {
-    color: '#000',
+    marginTop: 10,
+    color: '#D45588',
     fontSize: 20,
     fontWeight: 'bold',
     justifyContent: 'center',
@@ -242,17 +475,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D45588',
+    borderRadius: 15,
     marginBottom: 10,
-    height: 80
-  },
-  avatarContainer: {
-    width: 80,
     height: 80,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
   },
   avatarImageHeader: {
     width: 50,
@@ -273,19 +500,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     color: '#000',
-   
   },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 4,
-  },
+
   email: {
     fontSize: 14,
     color: '#bbb',
     fontWeight: 'bold',
     height: 20,
-    overflow:'hidden',
+    overflow: 'hidden',
   },
 });

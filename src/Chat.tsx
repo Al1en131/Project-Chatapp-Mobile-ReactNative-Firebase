@@ -128,7 +128,13 @@ export function Chat(props: any) {
           styles.messageContainer,
           isOwnMessage ? styles.ownMessage : styles.friendMessage,
         ]}>
-        <Text style={styles.messageText}>{item.text}</Text>
+        <View
+          style={[
+            styles.bubble,
+            isOwnMessage ? styles.ownBubble : styles.friendBubble,
+          ]}>
+          <Text style={styles.messageText}>{item.text}</Text>
+        </View>
       </View>
     );
   };
@@ -146,6 +152,7 @@ export function Chat(props: any) {
           value={messageText}
           onChangeText={setMessageText}
           placeholder="Type a message"
+          placeholderTextColor={'#D45588'}
           style={styles.input}
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
@@ -159,43 +166,67 @@ export function Chat(props: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#FFEBF2',
   },
   messageContainer: {
-    padding: 10,
     marginVertical: 5,
-    marginHorizontal: 10,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    maxWidth: '80%',
   },
+
+  // Pesan sendiri (kanan)
   ownMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#b3e6ff',
+    alignSelf: 'flex-end', // Posisi ke kanan
   },
+
+  // Pesan teman (kiri)
   friendMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#d3d3d3',
+    alignSelf: 'flex-start', // Posisi ke kiri
   },
+
+  // Gaya bubble umum
+  bubble: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    minWidth: 50,
+  },
+
+  // Bubble teman (warna merah dengan tail di kiri)
+  friendBubble: {
+    backgroundColor: '#FB9EC6', // Warna merah
+    borderBottomLeftRadius: 0, // Tail di kiri bawah
+  },
+
+  // Bubble sendiri (warna pink tua dengan tail di kanan)
+  ownBubble: {
+    backgroundColor: '#DE6398', // Warna pink tua
+    borderBottomRightRadius: 0, // Tail di kanan bawah
+  },
+
+  // Teks di dalam bubble
   messageText: {
+    color: '#FFFFFF', // Warna teks putih
     fontSize: 16,
+    lineHeight: 22,
   },
+
   inputContainer: {
     flexDirection: 'row',
     padding: 10,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderColor: '#cccccc',
+    marginTop: 20,
   },
   input: {
     flex: 1,
     padding: 10,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#FFEBF2',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#cccccc',
+    borderColor: '#D45588',
   },
   sendButton: {
     marginLeft: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: '#D45588',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
