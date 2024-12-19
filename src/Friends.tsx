@@ -74,6 +74,7 @@ export function Friends({user, onLogout}: any) {
     return parts[0][0].toUpperCase();
   };
 
+
   const renderUser = ({item}: any) => {
     // Check if the user has an avatar URL
     const avatarUrl = item.avatar || null; // Replace 'avatar' with the actual field name in your Firestore data
@@ -131,11 +132,11 @@ export function Friends({user, onLogout}: any) {
   if (friend && users?.length) {
     return (
       <>
-        <View style={{alignItems: 'center', display: 'flex', backgroundColor:"#FFEBF2"}}>
+        <View style={{display: 'flex', backgroundColor: '#FFEBF2'}}>
           {/* Back Button */}
           <View>
             <TouchableOpacity onPress={() => setFriend(null)}>
-              <Text style={styles.backButtonText}>← Back</Text>
+              <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
           </View>
 
@@ -161,7 +162,6 @@ export function Friends({user, onLogout}: any) {
                 },
               ]}>
               {friend?.avatar ? (
-                // Display the avatar image if available
                 <Image
                   source={{uri: friend?.avatar}}
                   style={{
@@ -171,7 +171,6 @@ export function Friends({user, onLogout}: any) {
                   }}
                 />
               ) : (
-                // Display initials if no avatar is available
                 <Text style={styles.avatarText}>
                   {getInitials(friend?.name)}
                 </Text>
@@ -204,8 +203,6 @@ export function Friends({user, onLogout}: any) {
                   />
                 </>
               ) : (
-                // Display the avatar image if available
-                // Display initials if no avatar is available
                 <Text style={[styles.avatarText]}>
                   {getInitials((user as any).email)}
                 </Text>
@@ -218,7 +215,15 @@ export function Friends({user, onLogout}: any) {
           </View>
           <View style={styles.flexContainer}>
             <View style={styles.textContainer}>
-              <Text style={styles.headerUser}>Hey, Alif</Text>
+              <Text style={styles.headerUser}>
+                Hey,{' '}
+                {curentUser?.name
+                  ? curentUser.name.length > 5
+                    ? `${curentUser.name.substring(0, 5)}...`
+                    : curentUser.name
+                  : 'Guest'}
+              </Text>
+
               <Text style={styles.headerDescription}>Let’s chat and catch</Text>
               <Text style={styles.headerDescription}>up with friends.</Text>
             </View>
@@ -251,8 +256,6 @@ export function Friends({user, onLogout}: any) {
   );
 }
 
-// Helper function to darken colors
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -263,13 +266,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     height: '30%',
-    position: 'relative', // Menambahkan position relative agar zIndex berfungsi
+    position: 'relative',
   },
   logo: {
     width: '100%',
     height: '100%',
-    position: 'absolute', // Membuat logo berada di belakang ikon
-    zIndex: 1, // Memberikan zIndex lebih rendah agar berada di bawah ikon
+    position: 'absolute',
+    zIndex: 1,
   },
   headerContainer: {
     position: 'relative',
@@ -281,7 +284,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   headerUser: {
     color: '#D45588',
@@ -295,10 +298,10 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   logo2: {
-    width: 120, // Ukuran logo kedua
-    height: 120, // Ukuran logo kedua
-    borderRadius: 35, // Membuat logo berbentuk lingkaran
-    resizeMode: 'contain', // Agar logo tetap terjaga proporsinya
+    width: 150,
+    height: 150,
+    borderRadius: 35,
+    resizeMode: 'contain',
   },
   textContainer: {
     width: '50%',
@@ -308,10 +311,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   avatarContainer: {
-    flexDirection: 'row', // Menyusun elemen dalam baris
-    justifyContent: 'center', // Menyusun elemen dimulai dari kiri
-    alignItems: 'center', // Menjaga elemen tetap rata tengah secara vertikal
-    overflow: 'hidden', // Menghindari elemen yang meluap
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
     borderWidth: 1,
     width: 50,
     height: 50,
@@ -425,7 +428,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
   },
   logoutButton: {
-    backgroundColor: '#D45588', // Purple button
+    backgroundColor: '#D45588',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
@@ -445,18 +448,16 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   backButton: {
-    marginRight: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
     backgroundColor: '#87CEEB',
   },
   backButtonText: {
-    marginTop: 10,
     color: '#D45588',
-    fontSize: 20,
+    fontSize: 40,
     fontWeight: 'bold',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   chatHeader: {
     justifyContent: 'center',

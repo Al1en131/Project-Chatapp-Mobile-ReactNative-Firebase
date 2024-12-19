@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   imageContainer: {
-    height: '30%',
+    height: '40%',
   },
   logo: {
     width: '100%',

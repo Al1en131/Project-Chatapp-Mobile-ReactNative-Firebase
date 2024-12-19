@@ -28,7 +28,6 @@ export function Chat(props: any) {
   const {user, friend} = props;
   const [conversationId, setConversationId] = useState<string | null>(null);
 
-  // Ensure the conversation exists
   useEffect(() => {
     const ensureConversation = async () => {
       try {
@@ -90,7 +89,6 @@ export function Chat(props: any) {
     };
   }, [conversationId]);
 
-  // Send a new message
   const sendMessage = useCallback(async () => {
     if (!messageText.trim() || !conversationId) return;
 
@@ -113,7 +111,7 @@ export function Chat(props: any) {
         [`unseen.${friend.id}`]: true,
       });
 
-      setMessageText(''); // Clear input
+      setMessageText(''); 
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -174,17 +172,14 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
   },
 
-  // Pesan sendiri (kanan)
   ownMessage: {
-    alignSelf: 'flex-end', // Posisi ke kanan
+    alignSelf: 'flex-end',
   },
 
-  // Pesan teman (kiri)
   friendMessage: {
-    alignSelf: 'flex-start', // Posisi ke kiri
+    alignSelf: 'flex-start', 
   },
 
-  // Gaya bubble umum
   bubble: {
     paddingVertical: 12,
     paddingHorizontal: 15,
@@ -192,21 +187,18 @@ const styles = StyleSheet.create({
     minWidth: 50,
   },
 
-  // Bubble teman (warna merah dengan tail di kiri)
   friendBubble: {
-    backgroundColor: '#FB9EC6', // Warna merah
-    borderBottomLeftRadius: 0, // Tail di kiri bawah
+    backgroundColor: '#FB9EC6',
+    borderBottomLeftRadius: 0, 
   },
 
-  // Bubble sendiri (warna pink tua dengan tail di kanan)
   ownBubble: {
-    backgroundColor: '#DE6398', // Warna pink tua
-    borderBottomRightRadius: 0, // Tail di kanan bawah
+    backgroundColor: '#DE6398', 
+    borderBottomRightRadius: 0, 
   },
 
-  // Teks di dalam bubble
   messageText: {
-    color: '#FFFFFF', // Warna teks putih
+    color: '#FFFFFF', 
     fontSize: 16,
     lineHeight: 22,
   },
