@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {db} from './config/firebase'; // Ensure you have your Firebase config set up
+import {db} from './config/firebase'; 
 import {collection, addDoc} from 'firebase/firestore';
 import {
   GoogleSignin,
@@ -25,19 +25,15 @@ const Signup: React.FC<SignupProps> = ({onSwitchToLogin}) => {
   const onGoogleButtonPress = async () => {
     try {
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-      // Obtain the user's ID token
       const data: any = await GoogleSignin.signIn();
 
-      // create a new firebase credential with the token
       const googleCredential = auth.GoogleAuthProvider.credential(
         data?.data.idToken,
       );
 
       console.log('credential: ', googleCredential);
-      // login with credential
       await auth().signInWithCredential(googleCredential);
 
-      //  Handle the linked account as needed in your app
       return;
     } catch (e) {
       console.log('e: ', e);
@@ -92,7 +88,7 @@ const Signup: React.FC<SignupProps> = ({onSwitchToLogin}) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder="Enter your email..."
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -107,7 +103,7 @@ const Signup: React.FC<SignupProps> = ({onSwitchToLogin}) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder="Enter your password..."
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -135,13 +131,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   imageContainer: {
-    height: '40%',
+    height: '50%',
   },
   logo: {
     width: '100%',
   },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
     flex: 1,
   },
   headerContainer: {
@@ -171,7 +167,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.3,
     borderColor: '#FB9EC6',
     marginBottom: 15,
     paddingHorizontal: 10,
@@ -255,12 +251,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   line: {
-    flex: 1, // Garis menyesuaikan lebar container
+    flex: 1,
     height: 1,
     backgroundColor: '#ccc',
   },
   orText: {
-    marginHorizontal: 20, // Jarak horizontal antara garis dan teks
+    marginHorizontal: 20, 
     fontSize: 16,
     color: '#FB9EC6',
     fontWeight: 'bold',

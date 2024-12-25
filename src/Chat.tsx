@@ -60,7 +60,6 @@ export function Chat(props: any) {
     ensureConversation();
   }, [user.id, friend.id]);
 
-  // Fetch messages
   useEffect(() => {
     if (!conversationId) return;
 
@@ -118,7 +117,6 @@ export function Chat(props: any) {
     }
   }, [messageText, conversationId, user, friend]);
 
-  // Render each message
   const renderMessage = ({item}: any) => {
     const isOwnMessage = item.senderId === user.id;
     return (
@@ -178,7 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBF2',
   },
   messageContainer: {
-    marginVertical: 5,
+    marginVertical: 8,
     paddingHorizontal: 10,
     maxWidth: '80%',
   },
@@ -193,7 +191,7 @@ const styles = StyleSheet.create({
   },
 
   bubble: {
-    paddingVertical: 6,
+    paddingVertical: 5,
     paddingHorizontal: 13,
     borderRadius: 20,
     minWidth: 50,
@@ -229,13 +227,14 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 13,
     paddingVertical: 12,
     backgroundColor: '#FFEBF2',
     borderRadius: 25,
     borderWidth: 1,
     borderColor: '#D45588',
     color: '#D45588',
+    fontSize: 16
   },
   sendButton: {
     marginLeft: 10,

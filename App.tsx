@@ -5,6 +5,7 @@ import usePushNotification from './src/usePushNotification';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
 import Signup from './src/Signup';
 import Login from './src/Login';
+import Welcome from './src/Welcome'; 
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {WEB_CLIENT_ID} from '@env';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
@@ -21,6 +22,7 @@ import {
 
 const App: React.FC = () => {
   const [isSignup, setIsSignup] = useState<boolean>(false);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(true); 
 
   const {
     requestUserPermission,
@@ -49,17 +51,15 @@ const App: React.FC = () => {
   function onAuthStateChanged(user: FirebaseAuthTypes.User | null) {
     if (user) {
       const messagesRef = collection(db, 'users');
-      // Query messages where the user and friend are involved
       const q = query(
         messagesRef,
-        where('name', '==', user?.email), // Either user is the sender or friend is the sender
+        where('name', '==', user?.email),
       );
       getDocs(q)
         .then(snapshot => {
           if (snapshot.empty) {
             console.log('No users found.');
           } else {
-            // Extract user data from the snapshot
             const usersList: any = snapshot.docs.map(doc => ({
               ID: doc.id,
               ...doc.data(),
@@ -68,7 +68,6 @@ const App: React.FC = () => {
             console.log('userdetails: ', userdetails);
             setUser(userdetails);
             setFcmToken(userdetails?.ID);
-            // You can store the users in state here (if needed)
           }
         })
         .catch(error => {
@@ -89,8 +88,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return subscriber;
   }, []);
 
   useEffect(() => {
@@ -124,25 +122,26 @@ const App: React.FC = () => {
     requestUserPermission,
   ]);
 
-  // const signOut = async () => {
-  //   try {
-  //     await GoogleSignin.revokeAccess();
-  //     await GoogleSignin.signOut();
-  //     setUser(null);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const onLogout = () => {
-    // signOut();
     auth()
       .signOut()
       .then(() => console.log('User signed out!'))
       .catch(error => console.error('Error signing out:', error));
   };
 
+  const handleNext = () => {
+    setIsFirstTime(false); 
+  };
+
   if (initializing) return <></>;
+
+  if (isFirstTime) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Welcome onNext={handleNext} />
+      </SafeAreaView>
+    );
+  }
 
   if (!!user) {
     return (
@@ -168,17 +167,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row', // Align items horizontally
-    justifyContent: 'space-between', // Space between title and logout
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
     alignItems: 'center',
     padding: 5,
   },
   headerText: {
-    color: '#00001a', // Light text
+    color: '#00001a',
     fontSize: 18,
   },
   logoutButton: {
-    backgroundColor: '#66b3ff', // Purple button
+    backgroundColor: '#66b3ff', 
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 5,
@@ -192,17 +191,17 @@ const styles = StyleSheet.create({
     width: '80%',
     height: 50,
     borderWidth: 1,
-    borderColor: '#555', // Darker border color
+    borderColor: '#555', 
     borderRadius: 5,
     marginBottom: 20,
     paddingHorizontal: 10,
-    color: '#fff', // Light text
-    backgroundColor: '#1e1e1e', // Dark input background
+    color: '#fff', 
+    backgroundColor: '#1e1e1e', 
   },
   button: {
     height: 40,
     width: 120,
-    backgroundColor: '#6200ea', // Purple button
+    backgroundColor: '#6200ea', 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
@@ -218,10 +217,10 @@ const styles = StyleSheet.create({
     height: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e6e6ff', // Dark theme header
+    backgroundColor: '#e6e6ff', 
   },
   userText: {
-    color: '#fff', // Light text
+    color: '#fff',
     fontSize: 18,
   },
 

@@ -29,10 +29,8 @@ export function Friends({user, onLogout}: any) {
           }))
           .filter(
             (conversation: any) =>
-              conversation.participants.includes(curentUser?.id), // Hanya percakapan yang melibatkan pengguna yang sedang login
+              conversation.participants.includes(curentUser?.id), 
           );
-
-        // Urutkan percakapan berdasarkan timestamp (chat terbaru di atas)
         updatedConversations.sort(
           (a: any, b: any) => b.timestamp - a.timestamp,
         );
@@ -84,7 +82,7 @@ export function Friends({user, onLogout}: any) {
         messages: [],
         lastMessage: '',
         timestamp: Date.now(),
-        seenBy: [curentUser?.id], // Tandai pesan awal sebagai terlihat oleh pengirim
+        seenBy: [curentUser?.id],
       };
 
       const conversationRef = doc(collection(db, 'conversations'));
@@ -100,15 +98,15 @@ export function Friends({user, onLogout}: any) {
     const friendId = item.participants.find((id: any) => id !== curentUser?.id);
     const friendData = users.find((u: any) => u.id === friendId);
 
-    if (!friendData) return null; // Jika data teman tidak ditemukan, jangan tampilkan
+    if (!friendData) return null; 
 
-    const isUnseen = !item.seenBy?.includes(curentUser?.id); // Cek apakah pesan belum dilihat
+    const isUnseen = !item.seenBy?.includes(curentUser?.id);
 
     return (
       <TouchableOpacity
         style={[
           styles.userCard,
-          isUnseen && styles.unseenCard, // Tambahkan gaya jika belum dilihat
+          isUnseen && styles.unseenCard, 
         ]}
         onPress={() => setFriend(friendData)}>
         <View style={styles.avatarContainer}>
@@ -137,7 +135,7 @@ export function Friends({user, onLogout}: any) {
       onPress={() => navigateToChatRoom(item)}>
       <View style={styles.avatarContainer}>
         {item.avatar ? (
-          <Image source={{uri: item.avatar}} style={styles.avatarImage} />
+          <Image source={{uri: item.avatar}} style={[styles.avatarImage]} />
         ) : (
           <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
         )}
@@ -151,7 +149,6 @@ export function Friends({user, onLogout}: any) {
   if (friend) {
     return (
       <View style={styles.container}>
-        {/* Header Chat */}
         <View style={styles.headerChat}>
           <View style={{alignItems: 'flex-start'}}>
             <View style={styles.friendInfo}>
@@ -162,7 +159,8 @@ export function Friends({user, onLogout}: any) {
                 />
               ) : (
                 <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarText}>
+                  <Text
+                    style={{color: '#D45588', fontWeight: 600, fontSize: 22}}>
                     {getInitials(friend?.name || '')}
                   </Text>
                 </View>
@@ -181,8 +179,6 @@ export function Friends({user, onLogout}: any) {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Konten Chat */}
         <Chat friend={friend} user={curentUser} />
       </View>
     );
@@ -269,7 +265,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FB9EC6',
   },
   unseenCard: {
-    backgroundColor: '#FCE4EC', // Warna untuk pesan yang belum dilihat
+    backgroundColor: '#FCE4EC',
   },
   header: {
     flexDirection: 'column',
@@ -293,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 15,
   },
   headerUser: {
     color: '#D45588',
@@ -304,7 +300,7 @@ const styles = StyleSheet.create({
   headerDescription: {
     color: '#D45588',
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   logo2: {
     width: 150,
@@ -330,6 +326,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 10,
     backgroundColor: '#D45588',
+    borderColor: '#D45588',
   },
 
   avatar: {
@@ -474,7 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    borderWidth: 1,
+    borderWidth: 1.4,
     borderColor: '#D45588',
     borderRadius: 15,
     marginBottom: 10,
@@ -502,28 +499,28 @@ const styles = StyleSheet.create({
   },
 
   email: {
-    fontSize: 14,
-    color: '#FF7EB5',
+    fontSize: 15,
+    color: '#E86BA1',
     height: 20,
     overflow: 'hidden',
   },
   headerChat: {
-    flexDirection: 'row', // Susunan horizontal
-    alignItems: 'center', // Pusatkan elemen secara vertikal
-    justifyContent: 'space-between', // Beri ruang di antara elemen kiri dan kanan
-    paddingHorizontal: 10, // Padding horizontal untuk ruang lebih baik
-    paddingVertical: 10, // Padding vertikal untuk kenyamanan
-    backgroundColor: '#D45588', // Warna latar belakang
-    borderBottomWidth: 1, // Garis bawah untuk pembatas
-    borderBottomColor: '#EEE', // Warna garis bawah
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: '#D45588',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
     width: '100%',
   },
 
   backButton: {},
   backButtonText: {
     color: 'white',
-    width: 20,
-    height: 17,
+    width: 30,
+    height: 30,
   },
   friendInfo: {
     flexDirection: 'row',
@@ -533,18 +530,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#FB9EC6',
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
   },
   friendName: {
     fontSize: 18,
-    fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
-  },
-  statusText: {
-    fontSize: 14,
-    color: '#6A0DAD',
   },
 });

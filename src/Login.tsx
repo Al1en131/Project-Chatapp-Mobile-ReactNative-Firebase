@@ -55,28 +55,6 @@ const Login: React.FC<LoginProps> = ({onSwitchToSignup}) => {
       });
   };
 
-  const onGoogleButtonPress = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-      // Obtain the user's ID token
-      const data: any = await GoogleSignin.signIn();
-
-      // create a new firebase credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(
-        data?.data.idToken,
-      );
-
-      console.log('credential: ', googleCredential);
-      // login with credential
-      await auth().signInWithCredential(googleCredential);
-
-      //  Handle the linked account as needed in your app
-      return;
-    } catch (e) {
-      console.log('e: ', e);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -99,7 +77,7 @@ const Login: React.FC<LoginProps> = ({onSwitchToSignup}) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter Your Email"
+              placeholder="Enter your email..."
               value={email}
               placeholderTextColor="#616161"
               onChangeText={setEmail}
@@ -115,7 +93,7 @@ const Login: React.FC<LoginProps> = ({onSwitchToSignup}) => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Enter Your Password"
+              placeholder="Enter your password..."
               value={password}
               placeholderTextColor="#616161"
               onChangeText={setPassword}
@@ -129,20 +107,6 @@ const Login: React.FC<LoginProps> = ({onSwitchToSignup}) => {
           onPress={onLogin}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
-        <View style={styles.orContainer1}>
-          <View style={styles.orContainer}>
-            <View style={styles.line} />
-            <Text style={styles.orText}>Or login with</Text>
-            <View style={styles.line} />
-          </View>
-        </View>
-        <GoogleSigninButton
-          onPress={() =>
-            onGoogleButtonPress().then(() =>
-              console.log('Signed in with Google!'),
-            )
-          }
-        />
         <Text style={styles.signUpText}>
           Don’t have an Account?{' '}
           <Text style={styles.signUpLink} onPress={onSwitchToSignup}>
@@ -161,7 +125,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   imageContainer: {
-    height: '38%',
+    height: '50%',
   },
   logo: {
     width: '100%',
@@ -193,7 +157,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
     flex: 1,
   },
   headerContainer: {
@@ -223,7 +187,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.3,
     borderColor: '#FB9EC6',
     marginBottom: 15,
     paddingHorizontal: 10,
@@ -269,7 +233,6 @@ const styles = StyleSheet.create({
     color: '#FB9EC6',
     fontWeight: 'bold',
   },
-  // Styles for the checkbox
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -313,12 +276,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   line: {
-    flex: 1, // Garis menyesuaikan lebar container
+    flex: 1, 
     height: 1,
     backgroundColor: '#ccc',
   },
   orText: {
-    marginHorizontal: 20, // Jarak horizontal antara garis dan teks
+    marginHorizontal: 20, 
     fontSize: 16,
     color: '#FB9EC6',
     fontWeight: 'bold',

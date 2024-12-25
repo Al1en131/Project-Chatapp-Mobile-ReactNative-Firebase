@@ -1,12 +1,10 @@
-// src/screens/WelcomeScreen.tsx
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 
 interface WelcomeProps {
   onNext: () => void;
 }
-
-const Welcome: React.FC<WelcomeProps> = ({ onNext }) =>  {
+const Welcome: React.FC<WelcomeProps> = ({onNext}) => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -24,17 +22,17 @@ const Welcome: React.FC<WelcomeProps> = ({ onNext }) =>  {
           Welcome! Discover a fun and exciting way to chat, share stories, and
           stay connected with your loved ones!
         </Text>
-        <TouchableOpacity
+      </View>
+      <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            onNext(); // Memanggil fungsi onNext untuk menandakan bahwa halaman selanjutnya akan ditampilkan
+            onNext();
           }}>
           <Text style={styles.text}>Continue</Text>
           <View style={styles.circle}>
             <Image source={require('./assets/images/arrow.png')} />
           </View>
         </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -53,8 +51,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   titleContainer: {
-    padding: 20,
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    alignItems: 'flex-start',
   },
   title: {
     fontSize: 40,
@@ -72,6 +70,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    marginRight: 20
   },
   text: {
     fontSize: 16,
@@ -83,9 +82,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FF8EC7', // Pink seperti pada gambar
+    backgroundColor: '#FB9EC6', 
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
+
 export default Welcome;
