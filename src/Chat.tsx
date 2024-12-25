@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import {db} from './config/firebase';
 import {
@@ -111,7 +112,7 @@ export function Chat(props: any) {
         [`unseen.${friend.id}`]: true,
       });
 
-      setMessageText(''); 
+      setMessageText('');
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -131,7 +132,13 @@ export function Chat(props: any) {
             styles.bubble,
             isOwnMessage ? styles.ownBubble : styles.friendBubble,
           ]}>
-          <Text style={styles.messageText}>{item.text}</Text>
+          <Text
+            style={[
+              styles.bubble,
+              isOwnMessage ? styles.ownBubbleText : styles.friendBubbleText,
+            ]}>
+            {item.text}
+          </Text>
         </View>
       </View>
     );
@@ -154,7 +161,11 @@ export function Chat(props: any) {
           style={styles.input}
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>Send</Text>
+          <Text style={styles.sendButtonText}>
+            <Image
+              source={require('./assets/images/send.png')} style={{width: 30, height: 30}}
+            />
+          </Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -177,53 +188,61 @@ const styles = StyleSheet.create({
   },
 
   friendMessage: {
-    alignSelf: 'flex-start', 
+    alignSelf: 'flex-start',
+    color: '#DE6398',
   },
 
   bubble: {
-    paddingVertical: 12,
-    paddingHorizontal: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 13,
     borderRadius: 20,
     minWidth: 50,
   },
 
   friendBubble: {
-    backgroundColor: '#FB9EC6',
-    borderBottomLeftRadius: 0, 
+    borderColor: '#DE6398',
+    borderWidth: 1.5,
+    borderBottomLeftRadius: 0,
   },
 
   ownBubble: {
-    backgroundColor: '#DE6398', 
-    borderBottomRightRadius: 0, 
+    backgroundColor: '#DE6398',
+    borderBottomRightRadius: 0,
   },
-
-  messageText: {
-    color: '#FFFFFF', 
+  friendBubbleText: {
+    color: '#DE6398',
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  ownBubbleText: {
+    color: '#FFFFFF',
     fontSize: 16,
     lineHeight: 22,
   },
 
   inputContainer: {
+    backgroundColor: '#D45588',
     flexDirection: 'row',
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
     marginTop: 20,
   },
   input: {
     flex: 1,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
     backgroundColor: '#FFEBF2',
-    borderRadius: 8,
+    borderRadius: 25,
     borderWidth: 1,
     borderColor: '#D45588',
+    color: '#D45588',
   },
   sendButton: {
     marginLeft: 10,
-    backgroundColor: '#D45588',
-    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 5,
+
   },
   sendButtonText: {
     color: '#ffffff',

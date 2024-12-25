@@ -6,187 +6,190 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  TextInput,
 } from 'react-native';
-import {collection, getDocs, onSnapshot} from 'firebase/firestore';
-import {db} from './config/firebase'; // Ensure Firebase is properly configured
+import {collection, getDocs, onSnapshot, doc, setDoc} from 'firebase/firestore';
+import {db} from './config/firebase';
 import {Chat} from './Chat';
 
 export function Friends({user, onLogout}: any) {
   const [users, setUsers] = useState<any>([]);
   const [friend, setFriend] = useState<any>(null);
   const [curentUser, setCurentUser] = useState(null);
-  const [conversations, setConversation] = useState([]);
+  const [conversations, setConversations] = useState<any>([]);
+  const [activeTab, setActiveTab] = useState('Chats'); // Tab aktif
 
   useEffect(() => {
     const fetchConversations = () => {
-      try {
-        const conversationRef = collection(db, 'conversations');
-
-        // Subscribe to real-time updates
-        const unsubscribe = onSnapshot(conversationRef, snapshot => {
-          const updatedConversations: any = snapshot.docs.map(doc => ({
+      const conversationRef = collection(db, 'conversations');
+      const unsubscribe = onSnapshot(conversationRef, snapshot => {
+        const updatedConversations: any = snapshot.docs
+          .map(doc => ({
             id: doc.id,
             ...doc.data(),
-          }));
+          }))
+          .filter(
+            (conversation: any) =>
+              conversation.participants.includes(curentUser?.id), // Hanya percakapan yang melibatkan pengguna yang sedang login
+          );
 
-          console.log('Real-time conversations: ', updatedConversations);
-          setConversation(updatedConversations);
-        });
+        // Urutkan percakapan berdasarkan timestamp (chat terbaru di atas)
+        updatedConversations.sort(
+          (a: any, b: any) => b.timestamp - a.timestamp,
+        );
 
-        // Cleanup the subscription when the component unmounts
-        return () => unsubscribe();
-      } catch (error) {
-        console.error('Error fetching conversations:', error);
-      }
+        setConversations(updatedConversations);
+      });
+
+      return () => unsubscribe();
     };
 
-    fetchConversations();
-  }, [friend]);
+    if (curentUser) {
+      fetchConversations();
+    }
+  }, [curentUser]);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      try {
-        const usersCollection = collection(db, 'users');
-        const snapshot = await getDocs(usersCollection);
-        const usersList: any = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCurentUser(usersList.find((x: any) => x.name === user.email));
-        setUsers(usersList.filter((x: any) => x.name !== user?.email));
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
+      const usersCollection = collection(db, 'users');
+      const snapshot = await getDocs(usersCollection);
+      const usersList: any = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCurentUser(usersList.find((x: any) => x.name === user.email));
+      setUsers(usersList.filter((x: any) => x.name !== user?.email));
     };
 
     fetchUsers();
   }, [user.email]);
 
   const getInitials = (email: string) => {
-    if (!email) {
-      return 'NA';
-    } // Default initials
+    if (!email) return 'NA';
     const parts = email.split('@')[0].split('.');
-    if (parts.length > 1) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return parts[0][0].toUpperCase();
+    return parts.length > 1
+      ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+      : parts[0][0].toUpperCase();
   };
 
-
-  const renderUser = ({item}: any) => {
-    // Check if the user has an avatar URL
-    const avatarUrl = item.avatar || null; // Replace 'avatar' with the actual field name in your Firestore data
-    const c: any = conversations.find((c: any) =>
-      c?.participants?.every((x: any) =>
-        [(curentUser as any)?.id, item.id].includes(x),
+  const navigateToChatRoom = async (selectedUser: any) => {
+    const conversationExists = conversations.find((c: any) =>
+      c.participants?.every((id: any) =>
+        [curentUser?.id, selectedUser.id].includes(id),
       ),
     );
-    const istyping = c?.isTyping[item?.id];
-    const unseen =
-      c?.senderId !== (curentUser as any).id &&
-      c?.unseen?.[(curentUser as any)?.id];
+
+    if (!conversationExists) {
+      const newConversation = {
+        participants: [curentUser?.id, selectedUser.id],
+        messages: [],
+        lastMessage: '',
+        timestamp: Date.now(),
+        seenBy: [curentUser?.id], // Tandai pesan awal sebagai terlihat oleh pengirim
+      };
+
+      const conversationRef = doc(collection(db, 'conversations'));
+      await setDoc(conversationRef, newConversation);
+    }
+
+    setFriend(selectedUser);
+  };
+
+  const renderChat = ({item}: any) => {
+    if (!item.lastMessage) return null;
+
+    const friendId = item.participants.find((id: any) => id !== curentUser?.id);
+    const friendData = users.find((u: any) => u.id === friendId);
+
+    if (!friendData) return null; // Jika data teman tidak ditemukan, jangan tampilkan
+
+    const isUnseen = !item.seenBy?.includes(curentUser?.id); // Cek apakah pesan belum dilihat
 
     return (
       <TouchableOpacity
         style={[
           styles.userCard,
-          {backgroundColor: unseen ? '#D45588' : 'transparent'},
+          isUnseen && styles.unseenCard, // Tambahkan gaya jika belum dilihat
         ]}
-        onPress={() => setFriend(item)}>
-        <View
-          style={[
-            styles.avatarContainer,
-            {
-              borderColor: unseen ? 'white' : '#D45588',
-              backgroundColor: unseen ? 'white' : '#D45588',
-            },
-          ]}>
-          {avatarUrl ? (
-            // Display the avatar image if available
-            <Image source={{uri: avatarUrl}} style={styles.avatarImage} />
+        onPress={() => setFriend(friendData)}>
+        <View style={styles.avatarContainer}>
+          {friendData?.avatar ? (
+            <Image
+              source={{uri: friendData.avatar}}
+              style={styles.avatarImage}
+            />
           ) : (
-            // Display initials if no avatar is available
-            <Text
-              style={[
-                styles.avatarText,
-                {color: unseen ? '#D45588' : 'white'},
-              ]}>
-              {getInitials(item.name)}
+            <Text style={styles.avatarText}>
+              {getInitials(friendData?.name || '')}
             </Text>
           )}
         </View>
         <View style={styles.userInfo}>
-          <Text style={[styles.name, {color: unseen ? 'white' : '#D45588'}]}>
-            {item.name || 'Anonymous'}
-          </Text>
-          <Text style={[styles.email, {color: unseen ? 'white' : '#D45588'}]}>
-            {istyping ? 'Typing...' : c?.lastMessage}
-          </Text>
+          <Text style={styles.name}>{friendData?.name || 'Unknown'}</Text>
+          <Text style={styles.email}>{item.lastMessage}</Text>
         </View>
       </TouchableOpacity>
     );
   };
 
-  if (friend && users?.length) {
-    return (
-      <>
-        <View style={{display: 'flex', backgroundColor: '#FFEBF2'}}>
-          {/* Back Button */}
-          <View>
-            <TouchableOpacity onPress={() => setFriend(null)}>
-              <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-          </View>
+  const renderUser = ({item}: any) => (
+    <TouchableOpacity
+      style={styles.userCard}
+      onPress={() => navigateToChatRoom(item)}>
+      <View style={styles.avatarContainer}>
+        {item.avatar ? (
+          <Image source={{uri: item.avatar}} style={styles.avatarImage} />
+        ) : (
+          <Text style={styles.avatarText}>{getInitials(item.name)}</Text>
+        )}
+      </View>
+      <View style={styles.userInfo}>
+        <Text style={styles.name}>{item.name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
-          {/* Avatar Section */}
-          <View
-            style={{
-              height: 70,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={[
-                styles.chatHeader,
-                {
-                  backgroundColor: '#D45588',
-                  width: 70,
-                  height: 70,
-                  borderRadius: 35,
-                  borderWidth: 1,
-                  borderColor: '#D45588',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                },
-              ]}>
+  if (friend) {
+    return (
+      <View style={styles.container}>
+        {/* Header Chat */}
+        <View style={styles.headerChat}>
+          <View style={{alignItems: 'flex-start'}}>
+            <View style={styles.friendInfo}>
               {friend?.avatar ? (
                 <Image
                   source={{uri: friend?.avatar}}
-                  style={{
-                    width: 70,
-                    height: 70,
-                    borderRadius: 35,
-                  }}
+                  style={styles.avatarImage}
                 />
               ) : (
-                <Text style={styles.avatarText}>
-                  {getInitials(friend?.name)}
-                </Text>
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarText}>
+                    {getInitials(friend?.name || '')}
+                  </Text>
+                </View>
               )}
+              <Text style={styles.friendName}>{friend?.name || 'Unknown'}</Text>
             </View>
           </View>
+          <TouchableOpacity
+            onPress={() => setFriend(null)}
+            style={styles.backButton}>
+            <Text style={styles.backButtonText}>
+              <Image
+                source={require('./assets/images/ArrowLeft.png')}
+                style={styles.logo}
+              />
+            </Text>
+          </TouchableOpacity>
         </View>
 
+        {/* Konten Chat */}
         <Chat friend={friend} user={curentUser} />
-      </>
+      </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Image
           source={require('./assets/images/home.png')}
@@ -238,29 +241,35 @@ export function Friends({user, onLogout}: any) {
       </View>
       <View style={styles.tabchat}>
         <View style={styles.tabs}>
-          <Text style={[styles.tab, styles.activeTab]}>Chats</Text>
-          <Text style={styles.tab}>Friends</Text>
-          <Text style={styles.tab}>Calls</Text>
+          <Text
+            style={[styles.tab, activeTab === 'Chats' && styles.activeTab]}
+            onPress={() => setActiveTab('Chats')}>
+            Chats
+          </Text>
+          <Text
+            style={[styles.tab, activeTab === 'Friends' && styles.activeTab]}
+            onPress={() => setActiveTab('Friends')}>
+            Friends
+          </Text>
         </View>
-
-        {/* Friends List */}
         <FlatList
-          data={users}
+          data={activeTab === 'Chats' ? conversations : users}
           keyExtractor={(item: any) => item.id}
-          renderItem={renderUser}
+          renderItem={activeTab === 'Chats' ? renderChat : renderUser}
           contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
         />
       </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     height: '100%',
     backgroundColor: '#FB9EC6',
+  },
+  unseenCard: {
+    backgroundColor: '#FCE4EC', // Warna untuk pesan yang belum dilihat
   },
   header: {
     flexDirection: 'column',
@@ -385,12 +394,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
+    color: '#D45588',
     fontSize: 16,
     fontWeight: 'bold',
   },
   message: {
     fontSize: 14,
-    color: '#E66D96',
+    color: '#FB9EC6',
   },
   infoContainer: {
     alignItems: 'flex-end',
@@ -447,18 +457,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     color: '#000000',
   },
-  backButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#87CEEB',
-  },
-  backButtonText: {
-    color: '#D45588',
-    fontSize: 40,
-    fontWeight: 'bold',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   chatHeader: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -505,9 +503,48 @@ const styles = StyleSheet.create({
 
   email: {
     fontSize: 14,
-    color: '#bbb',
-    fontWeight: 'bold',
+    color: '#FF7EB5',
     height: 20,
     overflow: 'hidden',
+  },
+  headerChat: {
+    flexDirection: 'row', // Susunan horizontal
+    alignItems: 'center', // Pusatkan elemen secara vertikal
+    justifyContent: 'space-between', // Beri ruang di antara elemen kiri dan kanan
+    paddingHorizontal: 10, // Padding horizontal untuk ruang lebih baik
+    paddingVertical: 10, // Padding vertikal untuk kenyamanan
+    backgroundColor: '#D45588', // Warna latar belakang
+    borderBottomWidth: 1, // Garis bawah untuk pembatas
+    borderBottomColor: '#EEE', // Warna garis bawah
+    width: '100%',
+  },
+
+  backButton: {},
+  backButtonText: {
+    color: 'white',
+    width: 20,
+    height: 17,
+  },
+  friendInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FB9EC6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  friendName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+    marginLeft: 10,
+  },
+  statusText: {
+    fontSize: 14,
+    color: '#6A0DAD',
   },
 });
