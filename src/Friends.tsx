@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 0,
   },
   headerUser: {
     color: '#D45588',
@@ -303,8 +303,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   logo2: {
-    width: 150,
-    height: 150,
+    width: 180,
+    height: 180,
     borderRadius: 35,
     resizeMode: 'contain',
   },
